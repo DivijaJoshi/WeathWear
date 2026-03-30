@@ -132,7 +132,7 @@ user req.body : {
 10) get user profile /getProfile
 
 ### weatherRoute
-1) hit weather api data  (get weather location from user like city in generate outfits request)
+1) hit weather api data  (get weather location from user like city in generate outfits api)
 
 ---
 
