@@ -47,7 +47,7 @@ const GenerateOutfitWorker = async () => {
                 folder: 'WeathWear/generatedOutfits'
             });
 
-            console.log('Cloudinary upload success:', response.public_id);
+            console.log('Cloudinary upload success:', cloudinaryResult.public_id);
 
             // delete from disk after upload
             fs.unlink(imagePath, () => { });
