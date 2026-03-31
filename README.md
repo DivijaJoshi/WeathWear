@@ -65,6 +65,10 @@ This is when I thought, what if my wardrobe could decide it for me.
     Implemented caching (5 min TTL) using node-cache module to store user inputs and prevent data loss in server crashes
 
 ---
+## Architecture
+![Generate Outfit Execution Flow](image.png)
+![Task Processing Architecture](image-2.png)
+
 
 ## So what you need to do? (as a user)
 
@@ -111,8 +115,6 @@ Gemini AI will analyze skin tone and categorize user as Spring, Summer, Autumn, 
 }
 ```
 
-![Generate Outfit Execution Flow](image.png)
-![Task Processing Architecture](image-2.png)
 
 ---
 
