@@ -61,7 +61,7 @@ This is when I thought, what if my wardrobe could decide it for me.
 9. **Real-time Updates:**
    Integrated Socket.io for sending generated response to user
 
-10. **Smart Caching:**
+10. **Implemented Caching:**
     Implemented caching (5 min TTL) using node-cache module to store user inputs and prevent data loss in server crashes
 
 ---
