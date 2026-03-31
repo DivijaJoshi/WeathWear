@@ -53,7 +53,7 @@ This is when I thought, what if my wardrobe could decide it for me.
    View outfit history
 
 7. **Cloud Storage Integration:**
-   Integrated for storing user closet
+   Integrated cloudinary for storing user closet and generated outfits
 
 8. **Distributed Processing:**
    Integrated RabbitMQ and Multi Queue-Multi Worker architecture for distributed processing, Worker Manager to scale up workers.
