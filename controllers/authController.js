@@ -25,23 +25,23 @@ const signup = async (req, res, next) => {
         }
 
         //check for extra fields
-        const allowedFields = ['name', 'email', 'password', 'gender']
-        for (let key in req.body) {
+        const allowedFields = ['name', 'email', 'password', 'gender'];
+        for (const key in req.body) {
             if (!allowedFields.includes(key)) {
-                const error = new Error('Only name, email, password, gender are allowed')
-                error.code = 400
-                throw error
+                const error = new Error('Only name, email, password, gender are allowed');
+                error.code = 400;
+                throw error;
             }
 
 
         }
 
         //validate gender
-        const allowedGenders = ['male', 'female']
+        const allowedGenders = ['male', 'female'];
         if (!allowedGenders.includes(gender)) {
-            const error = new Error('Gender must be male or female')
-            error.code = 400
-            throw error
+            const error = new Error('Gender must be male or female');
+            error.code = 400;
+            throw error;
         }
 
         //check if email already exists
@@ -52,6 +52,12 @@ const signup = async (req, res, next) => {
             throw error;
         }
 
+
+        if (password.length < 8) {
+            const error = new Error('Password must be at least 8 characters long');
+            error.code = 400;
+            throw error;
+        }
         //hash password 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -127,7 +133,7 @@ const login = async (req, res, next) => {
             .send({
                 success: true,
                 message: 'Login successful',
-                accessToken:accessToken
+                accessToken: accessToken
 
             });
 

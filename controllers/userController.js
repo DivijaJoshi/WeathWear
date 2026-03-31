@@ -18,7 +18,10 @@ const getProfile = async (req, res, next) => {
 
 
         //get user by Id
-        const userExists = await User.findOne({ _id: req.user.id });
+        const userExists = await User.findOne(
+            { _id: req.user.id },
+            { password: 0, userImage: 0, __v: 0 }
+        );
 
         //if user not found throw error
         if (!userExists) {
@@ -40,7 +43,7 @@ const getProfile = async (req, res, next) => {
 const addClothes = async (req, res, next) => {
     try {
 
-        console.log(req.body)
+        console.log(req.body);
         const { clothingName, clothingType, clothingMaterial, comfort } = req.body;
 
 
@@ -114,10 +117,13 @@ const addClothes = async (req, res, next) => {
         console.log('Uploading to Cloudinary');
 
 
-        const response = await cloudinary.uploader.unsigned_upload(req.file.path, 'ml_default', {
+        // const response = await cloudinary.uploader.unsigned_upload(req.file.path, 'ml_default', {
+        //     folder: 'WeathWear/closet'
+        // });
+
+        const response = await cloudinary.uploader.upload(req.file.path, {
             folder: 'WeathWear/closet'
         });
-
         console.log('Cloudinary upload success:', response.public_id);
 
 
@@ -335,22 +341,22 @@ const generateOutfits = async (req, res, next) => {
         }
 
 
-        const { ocassion, style, city, comfortScore, timeOfDay } = req.body;
+        const { occasion, style, city, comfortScore, timeOfDay,mode } = req.body;
 
 
         //check for missing fields
-        if (!ocassion || !style || !city || !comfortScore || !timeOfDay) {
+        if (!occasion || !style || !city || !comfortScore || !timeOfDay) {
             const error = new Error('Missing required fields');
             error.code = 400;
             throw error;
         }
 
         //validate fields in req.body
-        const allowedFields = ['ocassion', 'style', 'city', 'comfortScore', 'timeOfDay'];
+        const allowedFields = ['occasion', 'style', 'city', 'comfortScore', 'timeOfDay','mode'];
 
         for (const key in req.body) {
             if (!allowedFields.includes(key)) {
-                const error = new Error('Only ocassion,style,city,comfortScore,timeOfDay are allowed in request body');
+                const error = new Error('Only occasion,style,city,comfortScore,timeOfDay,mode are allowed in request body');
                 error.code = 400;
                 throw error;
             }
@@ -388,9 +394,11 @@ const generateOutfits = async (req, res, next) => {
 
         //set inputs for gemini
         const inputs = {
-            ocassion,
+            occasion,
             style,
-            timeOfDay
+            timeOfDay,
+            mode
+
         };
 
         const roomId = uuidv4();
@@ -399,7 +407,8 @@ const generateOutfits = async (req, res, next) => {
             user,
             closet,
             WeatherData,
-            inputs
+            inputs,
+            
         };
 
         const cacheData = myCache.set(roomId, Data, 300); //for 5 minutes set cache
@@ -409,7 +418,7 @@ const generateOutfits = async (req, res, next) => {
         res.status(200).json({
             success: true,
             roomId: roomId,
-            message: 'Outfit Generation in Progress'
+            message: mode==='test'? 'TEST MODE: Outfit prompt generation in progress':'Outfit Generation in Progress'
         });
 
 

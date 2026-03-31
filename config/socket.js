@@ -5,6 +5,9 @@ const websocketSetup=(server)=>{
 
 };
 const getio=()=>{
+    if (!io) { 
+        throw new Error('socket.io not initialized. Call websocketSetup() first.'); 
+    }
     return io;
 };
 

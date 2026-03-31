@@ -44,13 +44,13 @@ const RabbitMQ = async (url) => {
         durable: true
     });
 
-    
+
 
 
     // Bind the queue to the exchange with a routing key
     await channel.bindQueue(geminiSkinQueue, exchangeName, skinRoutingKey);
     await channel.bindQueue(geminiOutfitQueue, exchangeName, outfitRoutingKey);
-    await channel.bindQueue(geminiAnalyseQueue,exchangeName,outfitAnalyseKey);
+    await channel.bindQueue(geminiAnalyseQueue, exchangeName, outfitAnalyseKey);
 
 
 };
@@ -58,6 +58,9 @@ const RabbitMQ = async (url) => {
 
 
 const getChannel = () => {
+    if (!channel) {
+        throw new Error('RabbitMQ channel not initialized. Call RabbitMQ() first.');
+    }
     return channel;
 };
 

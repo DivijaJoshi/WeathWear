@@ -2,6 +2,7 @@
 
 const axios = require('axios');
 const https = require('https');
+const { ai } = require('../config/gemini');
 
 
 const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
@@ -34,10 +35,8 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
     });
 
 
-    //set complete prompt
-    const prompt = [
-        {
-            text: `You are an expert fashion stylist. Select the best outfit from the user's wardrobe and generate a photorealistic full body image of the user wearing it with white background.
+    //set base prompt 
+    const basePrompt = `You are an expert fashion stylist. Select the best outfit from the user's wardrobe and generate a photorealistic full body image of the user wearing it with white background.
 
             USER DETAILS:
             - Gender: ${user.gender}
@@ -53,45 +52,84 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
             - UV Index: ${weather.uv}
 
             OCCASION & STYLE:
-            - Occasion: ${inputs.ocassion}
+            - Occasion: ${inputs.occasion}
             - Style: ${inputs.style}
             - Time of Day: ${inputs.timeOfDay}
 
 
 
             AVAILABLE CLOTHES:
-            ${clothingList}
+            ${clothingList} `;
 
 
+    //create test prompt for when mode==='test
+    const testPrompt = `${basePrompt}
 
-            Select the most suitable items based on weather, occasion, style and user skin tone and color palette.
-            Generate a photorealistic full body image of the user wearing the selected outfit using 
-            the provided photo. Match their exact face, body type and skin tone.
-
-
-
-
-            First respond with this exact JSON:
-            {
-                "clothingIds": ["id1", "id2"],
-                "occasion": "${inputs.ocassion}",
-                "style": "${inputs.style}",
-                "weather": "${weather.condition}, ${weather.temp_c}°C",
-                "comfortScore": 4,
-                "Reasoning": "why this outfit was selected"
-            }
-
-
-            Then generate the outfit image.`
-
-        },
+        Select the most suitable items based on weather, occasion, style and user skin tone and color palette.
+        
+        Respond with this exact JSON format:
         {
-            inlineData: {  //pass user image to gemini
-                mimeType: user.ImageMimeType,
-                data: user.userImage,
-            },
-        },
-    ];
+            "clothingIds": ["id1", "id2"],
+            "occasion": "${inputs.occasion}",
+            "style": "${inputs.style}",
+            "weather": "${weather.condition}, ${weather.temp_c}°C",
+            "comfortScore": 4,
+            "Reasoning": "why this outfit was selected",
+            "imagePrompt": "A photorealistic full body image of a ${user.gender} with ${user.skinTone} skin tone wearing [describe the selected outfit in detail] against a white background"
+        }`;
+
+
+    //Main prompt for image generation 
+    const imagePrompt = `${basePrompt}
+        
+        Select the most suitable items based on weather, occasion, style and user skin tone and color palette. 
+        Generate a photorealistic full body image of the user wearing the selected outfit using the provided photo. Match their exact face, body type and skin tone.
+        
+        First respond with this exact JSON:
+        {
+            "clothingIds": ["id1", "id2"],
+            "occasion": "${inputs.occasion}",
+            "style": "${inputs.style}",
+            "weather": "${weather.condition}, ${weather.temp_c}°C",
+            "comfortScore": 4,
+            "Reasoning": "why this outfit was selected"
+        }
+        
+        Then generate the outfit image.`;
+
+    let outfitData;
+    let imageData;
+
+
+    // if mode is test
+    if (inputs.mode === 'test') {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+                {
+                    inlineData: {
+                        mimeType: user.ImageMimeType,
+                        data: user.userImage,
+                    },
+                },
+                { text: testPrompt }
+            ],
+            config: {
+                responseMimeType: 'application/json'
+            }
+        });
+
+        outfitData = JSON.parse(response.text);
+        return {
+            outfitData,
+            imageData: outfitData.imagePrompt
+        };
+
+    }
+
+
+
+
 
     const httpsAgent = new https.Agent({
         rejectUnauthorized: false
@@ -103,9 +141,9 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
             model: 'google/gemini-3.1-flash-image-preview',
             messages: [
                 {
-                    role: 'user',
+                    role: 'user', //user input
                     content: [
-                        { type: 'text', text: prompt[0].text },
+                        { type: 'text', text: imagePrompt },
                         {
                             type: 'image_url',
                             image_url: {
@@ -126,8 +164,7 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
         }
     );
 
-    let outfitData;
-    let imageData;
+
 
     console.log('OpenRouter Response:', JSON.stringify(response.data, null, 2));
 

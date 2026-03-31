@@ -15,12 +15,12 @@ const GetWeather = async (city) => {
     };
 
     try {
-        console.log('Weather API Key:', process.env.WEATHER_API_KEY ? '✅' : '❌ missing');
         const { data } = await axios.request(options);
-        console.log('WeatherData received:', data?.location?.name);
-    return data;
+        return data;
     } catch (error) {
-        console.error(error);
+        const err = new Error('Failed to fetch weather data for the given city'); 
+        err.code = 502;
+        throw err;
     }
 };
 

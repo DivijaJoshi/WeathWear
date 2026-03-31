@@ -11,23 +11,30 @@ const ClothingAnalyserWorker = async () => {
     channel.prefetch(1, false); //Applies to individual consumers
 
     await channel.consume('analyseClothing_queue', async (msg) => {
+        try{
+            if (msg) {
+                const message = JSON.parse(msg.content.toString());
+                const { content, isClothingAnalyser, userId, clothingId } = message;
 
-        if (msg) {
-            const message = JSON.parse(msg.content.toString());
-            const { content, isClothingAnalyser, userId, clothingId } = message;
 
+                // geminiCall parameters: (content,isSkinAnalyser,isClothingAnalyser)
+                const data = await geminiCall(content, false, isClothingAnalyser);  //returns JSON obj
 
-            // geminiCall parameters: (content,isSkinAnalyser,isClothingAnalyser)
-            const data = await geminiCall(content, false, isClothingAnalyser);  //returns JSON obj
+                const updateClothing = await Closet.findByIdAndUpdate(clothingId, {
+                    description: data.description
+                }, { new: true });
 
-            const updateClothing = await Closet.findByIdAndUpdate(clothingId, {
-                description: data.description
-            }, { new: true });
+                console.log('Updated Clothing: ', updateClothing);
 
-            console.log('Updated Clothing: ', updateClothing);
+                // Acknowledge after successful processing
+                channel.ack(msg);
+            }
 
-            // Acknowledge after successful processing
-            channel.ack(msg);
+        }catch(error){
+            console.error('Worker error:', error); 
+            // false = do not requeue (prevents infinite loop) 
+            channel.nack(msg, false, false); 
+
         }
     });
 
