@@ -90,7 +90,7 @@ Gemini AI will analyze skin tone and categorize user as Spring, Summer, Autumn, 
 - **Winter:** Dark skin with cool undertone
 - **Summer:** Light skin, pinkish undertone
 
-### 3) Generate outfit
+### 3) Generate outfit  (user emits joinRoom event and listens to outfitGenerated event)
 
 **Inputs:**
 
