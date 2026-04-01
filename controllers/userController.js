@@ -117,9 +117,7 @@ const addClothes = async (req, res, next) => {
         console.log('Uploading to Cloudinary');
 
 
-        // const response = await cloudinary.uploader.unsigned_upload(req.file.path, 'ml_default', {
-        //     folder: 'WeathWear/closet'
-        // });
+
 
         const response = await cloudinary.uploader.upload(req.file.path, {
             folder: 'WeathWear/closet'
@@ -341,7 +339,7 @@ const generateOutfits = async (req, res, next) => {
         }
 
 
-        const { occasion, style, city, comfortScore, timeOfDay,mode } = req.body;
+        const { occasion, style, city, comfortScore, timeOfDay, mode } = req.body;
 
 
         //check for missing fields
@@ -352,7 +350,7 @@ const generateOutfits = async (req, res, next) => {
         }
 
         //validate fields in req.body
-        const allowedFields = ['occasion', 'style', 'city', 'comfortScore', 'timeOfDay','mode'];
+        const allowedFields = ['occasion', 'style', 'city', 'comfortScore', 'timeOfDay', 'mode'];
 
         for (const key in req.body) {
             if (!allowedFields.includes(key)) {
@@ -408,7 +406,7 @@ const generateOutfits = async (req, res, next) => {
             closet,
             WeatherData,
             inputs,
-            
+
         };
 
         const cacheData = myCache.set(roomId, Data, 300); //for 5 minutes set cache
@@ -418,7 +416,7 @@ const generateOutfits = async (req, res, next) => {
         res.status(200).json({
             success: true,
             roomId: roomId,
-            message: mode==='test'? 'TEST MODE: Outfit prompt generation in progress':'Outfit Generation in Progress'
+            message: mode === 'test' ? 'TEST MODE: Outfit prompt generation in progress' : 'Outfit Generation in Progress'
         });
 
 

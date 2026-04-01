@@ -13,8 +13,13 @@ const { websocketSetup, getio } = require('./config/socket');
 const GeneratorProducer = require('./producers/GeneratorProducer');
 const { myCache } = require('./controllers/userController');
 const  WorkerManager  = require('./workers/WorkerManager');
+const authLimiter=require('./middlewares/authLimiter');
+const cors = require('cors'); 
 
-
+app.use(cors({
+    origin: process.env.ALLOWED_ORIGIN,
+    credentials: true
+}));
 
 //create folder if doesn't exist
 if (!fs.existsSync('./uploads')) fs.mkdirSync('./uploads');
@@ -56,15 +61,20 @@ io.on('connection', (socket) => {
 
 
         // inputs = {                           // Data = {
-        //     ocassion,                                   user,                           
+        //     occasion,                                   user,                           
         //     season,                                     closet,                            
         //     style,                                      WeatherData,
         //     timeOfDay                                   inputs
-        // }                                           }                                      
+        //     mode
+        //}                                           }                                      
 
-        console.log('Calling Producer')
+        
+
+        
+        console.log('Calling Producer');
         //call Generator Producer after user joins room
         GeneratorProducer(Data.WeatherData, Data.closet, Data.user, Data.inputs, roomId);
+        
 
     });
 
@@ -75,7 +85,7 @@ io.on('connection', (socket) => {
 
 
 
-app.use('/api/auth', authRouter);//mount auth routes
+app.use('/api/auth',authLimiter, authRouter);//mount auth routes
 app.use('/api/user', userRouter); //mount user routes
 
 

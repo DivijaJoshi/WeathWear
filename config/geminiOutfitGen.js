@@ -1,7 +1,6 @@
 
 
 const axios = require('axios');
-const https = require('https');
 const { ai } = require('../config/gemini');
 
 
@@ -131,9 +130,6 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
 
 
 
-    const httpsAgent = new https.Agent({
-        rejectUnauthorized: false
-    });
 
     const response = await axios.post(
         'https://openrouter.ai/api/v1/chat/completions',
@@ -159,8 +155,7 @@ const GeminiOutfitGen = async (weatherData, closet, user, inputs) => {
             headers: {
                 Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json'
-            },
-            httpsAgent
+            }
         }
     );
 

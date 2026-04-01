@@ -58,8 +58,10 @@ const auth = (req, res, next) => {
             //verify refresh token
             const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
 
+            const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '1d';
+
             //generates new access token if refresh token verified
-            const accessToken = jwt.sign({ id: decoded.id }, process.env.ACCESS_SECRET_KEY, { expiresIn: '1h' });
+            const accessToken = jwt.sign({ id: decoded.id }, process.env.ACCESS_SECRET_KEY, { expiresIn: ACCESS_TOKEN_EXPIRY });
             req.user = decoded;
 
             res

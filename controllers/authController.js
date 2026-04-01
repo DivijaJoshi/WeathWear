@@ -117,14 +117,17 @@ const login = async (req, res, next) => {
         //verify if password matches the stored password in db
         const passwordMatched = await bcrypt.compare(password, user.password);
         if (!passwordMatched) {
-            const error = new Error('Invalid Credentials, Password do not match');
-            error.code = 400;
+            const error = new Error('Invalid Credentials');
+            error.code = 401;
             throw error;
         }
 
+        const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '1d';
+        const REFRESH_TOKEN_EXPIRY= process.env.REFRESH_TOKEN_EXPIRY || '7d';
+
         //generate access and refresh tokens
-        const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_SECRET_KEY, { expiresIn: '1d' });
-        const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_SECRET_KEY, { expiresIn: '7d' });
+        const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_SECRET_KEY, { expiresIn: ACCESS_TOKEN_EXPIRY });
+        const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_SECRET_KEY, { expiresIn: REFRESH_TOKEN_EXPIRY });
 
 
         //send access token in json response and set refresh token in cookie
@@ -162,7 +165,9 @@ const refreshToken = async (req, res, next) => {
 
         //verify refresh token and generate new access token
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET_KEY);
-        const accessToken = jwt.sign({ id: decoded.id, }, process.env.ACCESS_SECRET_KEY, { expiresIn: '1d' });
+
+        const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY || '1d';
+        const accessToken = jwt.sign({ id: decoded.id, }, process.env.ACCESS_SECRET_KEY, { expiresIn: ACCESS_TOKEN_EXPIRY });
 
 
         //set access token in auth header
