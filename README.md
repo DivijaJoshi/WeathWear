@@ -62,7 +62,7 @@ This is when I thought, what if my wardrobe could decide it for me.
    Integrated Socket.io for sending generated response to user
 
 10. **Implemented Caching:**
-    Implemented caching (5 min TTL) using node-cache module to store user inputs and prevent data loss in server crashes
+    Implemented caching (5 min TTL) using node-cache module to store user inputs 
 
 ---
 ## Architecture
@@ -298,10 +298,11 @@ So stored as base64 and passed as inline data.
 
 ### 3) Another Challenge was Caching Data
 
-I used npm node-cache module for caching the inputs and data required to call gemini for generateOutfit API.
-Instead of storing it as an object in memory, so server restart would save it with TTL of 5 minutes.
+I used npm node-cache module for in memory caching of the inputs and data required to call gemini for generateOutfit API.
 
-And if data already processed by gemini, then delete cache data automatically, so frees memory as well.
+- Prevents refetching weather data 
+
+if data already processed by gemini, then delete cache data automatically, so frees memory as well.
 
 ```javascript
 myCache.del(roomId);
