@@ -1,6 +1,7 @@
 const { getChannel } = require('../config/rabbitMQ');
 const { geminiCall } = require('../config/gemini');
 const User = require('../models/User');
+const { QUEUES } = require('../constants/queueNames');
 
 const SkinAnalyserWorker = async () => {
     const channel = getChannel();
@@ -9,7 +10,7 @@ const SkinAnalyserWorker = async () => {
     // (no. of messages sent to a consumer before message ack of past message)
     channel.prefetch(1, false); //Applies to individual consumers
 
-    await channel.consume('analyseSkin_queue', async (msg) => {
+    await channel.consume(QUEUES.SKIN_QUEUE, async (msg) => {
         try {
             if (msg) {
                 const message = JSON.parse(msg.content.toString());

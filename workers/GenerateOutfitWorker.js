@@ -7,6 +7,7 @@ const { getio } = require('../config/socket');
 const { myCache } = require('../controllers/userController');
 const cloudinary = require('../config/cloudinary');
 const fs = require('fs');
+const { QUEUES } = require('../constants/queueNames');
 
 
 
@@ -20,7 +21,7 @@ const GenerateOutfitWorker = async () => {
     channel.prefetch(1, false); //Applies to individual consumers
 
     //consume from generate outfit queue
-    await channel.consume('generate_outfit_queue', async (msg) => {
+    await channel.consume(QUEUES.OUTFIT_QUEUE, async (msg) => {
 
         try {
 

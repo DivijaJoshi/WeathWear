@@ -1,4 +1,5 @@
 const amqp = require('amqplib');
+const { QUEUES, EXCHANGE, ROUTING_KEYS } = require('../constants/queueNames');
 
 let channel;
 const RabbitMQ = async (url) => {
@@ -6,51 +7,28 @@ const RabbitMQ = async (url) => {
     const connection = await amqp.connect(url);
     channel = await connection.createChannel();
 
-    const exchangeName = 'WeathWear_Exchange';
-
-    await channel.assertExchange(exchangeName, 'direct', {
+    // Assert exchange
+    await channel.assertExchange(EXCHANGE, 'direct', {
         durable: true
     });
 
-
-    //set queueName and routingKey for gemini calls for analysing user skin tone
-    const geminiSkinQueue = 'analyseSkin_queue';
-    const skinRoutingKey = 'analyse_skinTone';
-
-
-    //set queueName and routingKey for gemini calls for outfit generation 
-    const geminiOutfitQueue = 'generate_outfit_queue';
-    const outfitRoutingKey = 'generate_outfit';
-
-
-    //set queueName and routingKey for gemini calls for analysing closet clothes
-    const geminiAnalyseQueue = 'analyseClothing_queue';
-    const outfitAnalyseKey = 'analyse_clothing';
-
-
-
-    // Declare the queue - durable ensures it survives restarts
-    await channel.assertQueue(geminiSkinQueue, {
+    // Declare queues - durable ensures they survive restarts
+    await channel.assertQueue(QUEUES.SKIN_QUEUE, {
         durable: true
     });
 
-    // Declare the queue - durable ensures it survives restarts
-    await channel.assertQueue(geminiOutfitQueue, {
+    await channel.assertQueue(QUEUES.OUTFIT_QUEUE, {
         durable: true
     });
 
-    // Declare the queue - durable ensures it survives restarts
-    await channel.assertQueue(geminiAnalyseQueue, {
+    await channel.assertQueue(QUEUES.CLOTHING_QUEUE, {
         durable: true
     });
 
-
-
-
-    // Bind the queue to the exchange with a routing key
-    await channel.bindQueue(geminiSkinQueue, exchangeName, skinRoutingKey);
-    await channel.bindQueue(geminiOutfitQueue, exchangeName, outfitRoutingKey);
-    await channel.bindQueue(geminiAnalyseQueue, exchangeName, outfitAnalyseKey);
+    // Bind queues to exchange with routing keys
+    await channel.bindQueue(QUEUES.SKIN_QUEUE, EXCHANGE, ROUTING_KEYS.SKIN_KEY);
+    await channel.bindQueue(QUEUES.OUTFIT_QUEUE, EXCHANGE, ROUTING_KEYS.OUTFIT_KEY);
+    await channel.bindQueue(QUEUES.CLOTHING_QUEUE, EXCHANGE, ROUTING_KEYS.CLOTHING_KEY);
 
 
 };

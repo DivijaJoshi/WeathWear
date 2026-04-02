@@ -1,12 +1,13 @@
 const ClothingAnalyserWorker = require('./ClothingAnalyserWorker');
 const SkinAnalyserWorker = require('./SkinAnalyserWorker');
 const GenerateOutfitWorker = require('./GenerateOutfitWorker');
+const { QUEUES } = require('../constants/queueNames');
 
 //store available workers object with queuename
 const AvailableWorkers = {
-    'analyseSkin_queue': SkinAnalyserWorker,
-    'generate_outfit_queue': GenerateOutfitWorker,
-    'analyseClothing_queue': ClothingAnalyserWorker
+    [QUEUES.SKIN_QUEUE]: SkinAnalyserWorker,
+    [QUEUES.OUTFIT_QUEUE]: GenerateOutfitWorker,
+    [QUEUES.CLOTHING_QUEUE]: ClothingAnalyserWorker
 };
 
 
@@ -14,9 +15,9 @@ const WorkerManager = async (channel) => {
 
     //store queue name and worker count
     const defaultWorkers = {
-        'analyseSkin_queue': 1,
-        'generate_outfit_queue': 1,
-        'analyseClothing_queue': 1
+        [QUEUES.SKIN_QUEUE]: 1,
+        [QUEUES.OUTFIT_QUEUE]: 1,
+        [QUEUES.CLOTHING_QUEUE]: 1
     };
 
 
@@ -31,9 +32,9 @@ const WorkerManager = async (channel) => {
     SkinAnalyserWorker();
     GenerateOutfitWorker();
 
-    console.log('initial Worker started for analyseClothing_queue');
-    console.log('initial Worker started for analyseSkin_queue');
-    console.log('initial Worker started for generate_outfit_queue');
+    console.log(`initial Worker started for ${QUEUES.CLOTHING_QUEUE}`);
+    console.log(`initial Worker started for ${QUEUES.SKIN_QUEUE}`);
+    console.log(`initial Worker started for ${QUEUES.OUTFIT_QUEUE}`);
 
 
     //run every 10 seconds to check for new tasks to start new worker or scale

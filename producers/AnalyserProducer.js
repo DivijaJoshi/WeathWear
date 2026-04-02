@@ -1,5 +1,6 @@
 
 const { getChannel } = require('../config/rabbitMQ');
+const { EXCHANGE, ROUTING_KEYS, QUEUES } = require('../constants/queueNames');
 
 const AnalyserProducer = async (content, isSkinAnalyser, isClothingAnalyser, userId, clothingId) => {
     const channel = getChannel();
@@ -15,8 +16,8 @@ const AnalyserProducer = async (content, isSkinAnalyser, isClothingAnalyser, use
             userId: userId
 
         };
-        channel.publish('WeathWear_Exchange', 'analyse_skinTone', Buffer.from(JSON.stringify(message)));
-        console.log(`${JSON.stringify(message)} published to analyseSkin_queue}`);
+        channel.publish(EXCHANGE, ROUTING_KEYS.SKIN_KEY, Buffer.from(JSON.stringify(message)));
+        console.log(`${JSON.stringify(message)} published to ${QUEUES.SKIN_QUEUE}`);
 
     }
     else if (isClothingAnalyser) {
@@ -27,8 +28,8 @@ const AnalyserProducer = async (content, isSkinAnalyser, isClothingAnalyser, use
             clothingId: clothingId
 
         };
-        channel.publish('WeathWear_Exchange', 'analyse_clothing', Buffer.from(JSON.stringify(message)));
-        console.log(`${JSON.stringify(message)} published to analyseClothing_queue}`);
+        channel.publish(EXCHANGE, ROUTING_KEYS.CLOTHING_KEY, Buffer.from(JSON.stringify(message)));
+        console.log(`${JSON.stringify(message)} published to ${QUEUES.CLOTHING_QUEUE}`);
 
     }
 

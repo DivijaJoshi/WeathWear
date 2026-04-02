@@ -10,7 +10,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const NodeCache = require('node-cache');
 const myCache = new NodeCache();
-
+const AppError = require('../utils/AppError');
 
 
 const getProfile = async (req, res, next) => {
@@ -25,9 +25,7 @@ const getProfile = async (req, res, next) => {
 
         //if user not found throw error
         if (!userExists) {
-            const error = new Error('User does not exist');
-            error.code = 404;
-            throw error;
+            throw new AppError('User does not exist', 404);
         }
 
         return res.status(200).json({
@@ -43,54 +41,22 @@ const getProfile = async (req, res, next) => {
 const addClothes = async (req, res, next) => {
     try {
 
-        console.log(req.body);
         const { clothingName, clothingType, clothingMaterial, comfort } = req.body;
 
 
-        //check for missing fields
-        if (!clothingName || !clothingType || !clothingMaterial || !comfort) {
-            const error = new Error('Missing required fields');
-            error.code = 400;
-            throw error;
-        }
+
 
         //check if no file provided
         if (!req.file) {
-            const error = new Error('No file uploaded');
-            error.code = 400;
-            throw error;
+            throw new AppError('No file uploaded', 400);
         }
 
 
-
-
-        //validate fields in req.body
-        const allowedFields = ['clothingName', 'clothingType', 'clothingMaterial', 'comfort'];
-
-        for (const key in req.body) {
-            if (!allowedFields.includes(key)) {
-                const error = new Error('Only clothingName, clothingType, clothingMaterial, comfort are allowed in request body');
-                error.code = 400;
-                throw error;
-            }
-        }
-
-
-        //validate file type format
-        const allowed = ['image/jpeg', 'image/png', 'image/jpg'];
-
-        if (!allowed.includes(req.file.mimetype)) {
-            const error = new Error('Only JPG, JPEG and PNG files are allowed');
-            error.code = 400;
-            throw error;
-        }
 
         //check if clothing name already exists in db for a given user
         const clothingExists = await Closet.findOne({ clothingName, userId: req.user.id });
         if (clothingExists) {
-            const error = new Error('Clothing by this clothing Name already exists in your closet');
-            error.code = 400;
-            throw error;
+            throw new AppError('Clothing by this clothing Name already exists in your closet', 400);
 
         }
 
@@ -165,26 +131,15 @@ const analyseSkinTone = async (req, res, next) => {
 
         //check if no file provided
         if (!req.file) {
-            const error = new Error('No file uploaded');
-            error.code = 400;
-            throw error;
+            throw new AppError('No file uploaded', 400);
         }
 
-        //validate file type format
-        const allowed = ['image/jpeg', 'image/png', 'image/jpg'];
 
-        if (!allowed.includes(req.file.mimetype)) {
-            const error = new Error('Only JPG, JPEG and PNG files are allowed');
-            error.code = 400;
-            throw error;
-        }
 
         //check if user skin analysis already done and saved to db
         const userExists = await User.findById(req.user.id);
         if (userExists.colorPalette && userExists.skinTone) {
-            const error = new Error('Skin tone analyses is already done');
-            error.code = 400;
-            throw error;
+            throw new AppError('Skin tone analyses is already done', 400);
         }
 
 
@@ -244,9 +199,7 @@ const getCloset = async (req, res, next) => {
         const closet = await Closet.find({ userId: req.user.id });
 
         if (closet.length === 0) {
-            const error = new Error('Closet empty, Add more clothes');
-            error.code = 400;
-            throw error;
+            throw new AppError('Closet empty, Add more clothes', 404);
         }
 
         res.status(200).json({
@@ -270,9 +223,7 @@ const deleteClothes = async (req, res, next) => {
         //validate mongoose format for taskId
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) {
-            const error = new Error('Invalid Mongoose ObjectID');
-            error.code = 400;
-            throw error;
+            throw new AppError('Invalid Mongoose ObjectID', 400);
         }
 
         //only allowed to delete own clothings
@@ -283,9 +234,7 @@ const deleteClothes = async (req, res, next) => {
 
         //if deleted is null, no clothing found with that id
         if (!deleted) {
-            const error = new Error('No clothing found with this ID');
-            error.code = 404;
-            throw error;
+            throw new AppError('No clothing found with this ID', 404);
         }
 
         //delete from cloudinary 
@@ -331,34 +280,8 @@ const generateOutfits = async (req, res, next) => {
     try {
 
 
-        //check for empty req body
-        if (!req.body) {
-            const error = new Error('Request body is empty');
-            error.code = 400;
-            throw error;
-        }
-
-
         const { occasion, style, city, comfortScore, timeOfDay, mode } = req.body;
 
-
-        //check for missing fields
-        if (!occasion || !style || !city || !comfortScore || !timeOfDay) {
-            const error = new Error('Missing required fields');
-            error.code = 400;
-            throw error;
-        }
-
-        //validate fields in req.body
-        const allowedFields = ['occasion', 'style', 'city', 'comfortScore', 'timeOfDay', 'mode'];
-
-        for (const key in req.body) {
-            if (!allowedFields.includes(key)) {
-                const error = new Error('Only occasion,style,city,comfortScore,timeOfDay,mode are allowed in request body');
-                error.code = 400;
-                throw error;
-            }
-        }
 
 
         //call weather api axios function
@@ -367,15 +290,11 @@ const generateOutfits = async (req, res, next) => {
         //find user by id
         const user = await User.findOne({ _id: req.user.id });
         if (!user) {
-            const error = new Error('No user found with this id');
-            error.code = 404;
-            throw error;
+            throw new AppError('No user found with this id', 404);
         }
 
         if (!user.colorPalette && !user.skinTone) {
-            const error = new Error('Skin tone analysis not done yet');
-            error.code = 400;
-            throw error;
+            throw new AppError('Skin tone analysis not done yet', 400);
         }
 
         //find whole closet of user
@@ -385,9 +304,7 @@ const generateOutfits = async (req, res, next) => {
         });
 
         if (closet.length === 0) {
-            const error = new Error('Closet empty, Add more clothes');
-            error.code = 400;
-            throw error;
+            throw new AppError('Closet empty, Add more clothes', 404);
         }
 
         //set inputs for gemini
@@ -440,9 +357,7 @@ const getFavourites = async (req, res, next) => {
 
         //if no favourites found throw error
         if (favourites.length === 0) {
-            const error = new Error('No favourites found');
-            error.code = 404;
-            throw error;
+            throw new AppError('No favourites found', 404);
         }
 
         res.status(200).json({
@@ -464,9 +379,7 @@ const setFavourite = async (req, res, next) => {
         //validate mongoose format for taskId
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) {
-            const error = new Error('Invalid Mongoose ObjectID');
-            error.code = 400;
-            throw error;
+            throw new AppError('Invalid Mongoose ObjectID', 400);
         }
 
         //check if outfit exists by id
@@ -474,16 +387,12 @@ const setFavourite = async (req, res, next) => {
 
         //throw error if outfit not found
         if (!outfitExists) {
-            const error = new Error('No outfit found with this id');
-            error.code = 404;
-            throw error;
+            throw new AppError('No outfit found with this id', 404);
         }
 
         //if outfit already marked as favourite cannot mark favourite again
         if (outfitExists.isFavourite === true) {
-            const error = new Error('Already marked as favourite');
-            error.code = 400;
-            throw error;
+            throw new AppError('Already marked as favourite', 400);
         }
         const outfit = await Outfits.findByIdAndUpdate(id, { isFavourite: true }, { new: true });
 
@@ -511,9 +420,7 @@ const removeFavourite = async (req, res, next) => {
         //validate mongoose format for taskId
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) {
-            const error = new Error('Invalid Mongoose ObjectID');
-            error.code = 400;
-            throw error;
+            throw new AppError('Invalid Mongoose ObjectID', 400);
         }
 
         //check if outfit exists by id
@@ -521,16 +428,12 @@ const removeFavourite = async (req, res, next) => {
 
         //if outfit not found throw error
         if (!outfitExists) {
-            const error = new Error('No outfit found with this id');
-            error.code = 404;
-            throw error;
+            throw new AppError('No outfit found with this id', 404);
         }
 
         //if outfit not marked as favourite cannot remove from favourite
         if (outfitExists.isFavourite === false) {
-            const error = new Error('Cannot remove from favourite, already not marked as favourite.');
-            error.code = 400;
-            throw error;
+            throw new AppError('Cannot remove from favourite, already not marked as favourite.', 400);
         }
 
         //remove outfit from favourite
@@ -561,9 +464,7 @@ const getGeneratedOutfits = async (req, res, next) => {
 
         //if not generated outfit found throw error
         if (outfits.length === 0) {
-            const error = new Error('No outfits generated yet');
-            error.code = 404;
-            throw error;
+            throw new AppError('No outfits generated yet', 404);
         }
 
         res.status(200).json({
