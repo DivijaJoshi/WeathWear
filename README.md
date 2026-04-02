@@ -308,8 +308,6 @@ if data already processed by gemini, then delete cache data automatically, so fr
 myCache.del(roomId);
 ```
 
-- Prevents refetching weather data as well
-
 ### 4) Worker Manager
 
 Instead of manually starting workers, worker manager scales up worker if too many messages in a particular queue.
