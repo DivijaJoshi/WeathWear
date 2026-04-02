@@ -50,16 +50,7 @@ const closet = new mongoose.Schema({
     }
 
 
-
-
-
-
-
-
-
-
-
-});
+}, { timestamps: true });
 
 
 const Closet = mongoose.model('Closet', closet);

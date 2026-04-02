@@ -47,10 +47,7 @@ const outfits = new mongoose.Schema({
         required: [true, 'cloudinary public id is required']
     }
 
-
-
-
-});
+}, { timestamps: true });
 
 
 const Outfits = mongoose.model('Outfits', outfits);

@@ -16,7 +16,6 @@ const AppError = require('../utils/AppError');
 const getProfile = async (req, res, next) => {
     try {
 
-
         //get user by Id
         const userExists = await User.findOne(
             { _id: req.user.id },
@@ -43,15 +42,10 @@ const addClothes = async (req, res, next) => {
 
         const { clothingName, clothingType, clothingMaterial, comfort } = req.body;
 
-
-
-
         //check if no file provided
         if (!req.file) {
             throw new AppError('No file uploaded', 400);
         }
-
-
 
         //check if clothing name already exists in db for a given user
         const clothingExists = await Closet.findOne({ clothingName, userId: req.user.id });
@@ -70,9 +64,6 @@ const addClothes = async (req, res, next) => {
 
         console.log('Gemini upload success:', myfile.uri);
 
-
-
-
         //create content obj to be sent to gemini
         const content = {
             uri: myfile.uri,
@@ -82,16 +73,10 @@ const addClothes = async (req, res, next) => {
 
         console.log('Uploading to Cloudinary');
 
-
-
-
         const response = await cloudinary.uploader.upload(req.file.path, {
             folder: 'WeathWear/closet'
         });
         console.log('Cloudinary upload success:', response.public_id);
-
-
-
 
 
         //create new clothing document in closet
@@ -135,13 +120,11 @@ const analyseSkinTone = async (req, res, next) => {
         }
 
 
-
         //check if user skin analysis already done and saved to db
         const userExists = await User.findById(req.user.id);
         if (userExists.colorPalette && userExists.skinTone) {
             throw new AppError('Skin tone analyses is already done', 400);
         }
-
 
 
         //upload files to gemini
@@ -165,8 +148,6 @@ const analyseSkinTone = async (req, res, next) => {
 
         //call producer and send message to queue
         await AnalyserProducer(content, true, false, req.user.id, null);
-
-
 
 
 
@@ -261,13 +242,6 @@ const deleteClothes = async (req, res, next) => {
         });
 
 
-
-
-
-
-
-
-
     }
     catch (error) {
         next(error);
@@ -279,10 +253,7 @@ const deleteClothes = async (req, res, next) => {
 const generateOutfits = async (req, res, next) => {
     try {
 
-
         const { occasion, style, city, comfortScore, timeOfDay, mode } = req.body;
-
-
 
         //call weather api axios function
         const WeatherData = await GetWeather(city);
@@ -335,10 +306,6 @@ const generateOutfits = async (req, res, next) => {
             roomId: roomId,
             message: mode === 'test' ? 'TEST MODE: Outfit prompt generation in progress' : 'Outfit Generation in Progress'
         });
-
-
-
-
 
 
 
@@ -445,8 +412,6 @@ const removeFavourite = async (req, res, next) => {
             message: 'Removed from favourites',
             outfit: outfit
         });
-
-
 
 
     }

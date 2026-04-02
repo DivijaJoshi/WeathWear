@@ -8,8 +8,6 @@ const validate = require('../middlewares/validate');
 
 
 
-
-
 router.get('/getProfile', auth, getProfile); //get user profile
 router.post('/addClothes', auth, upload.single('image'), validate(addClothesSchema), addClothes); //add clothes to closet and upload image to cloudinary
 router.post('/analyseSkinTone', auth, upload.single('image'), analyseSkinTone); //analys skin tone and save to user db

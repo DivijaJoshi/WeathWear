@@ -21,11 +21,11 @@ const user = new mongoose.Schema({
         required: [true, 'Password required']
     },
     gender:
-        {
-            type: String,
-            enum: { values: ['male', 'female'], message: 'Invalid gender' },
-            default: null
-        },
+    {
+        type: String,
+        enum: { values: ['male', 'female'], message: 'Invalid gender' },
+        default: null
+    },
     skinTone: {
         type: String,
         default: null
@@ -45,7 +45,7 @@ const user = new mongoose.Schema({
     }
 
 
-});
+}, { timestamps: true });
 
 const User = mongoose.model('User', user);
 module.exports = User;

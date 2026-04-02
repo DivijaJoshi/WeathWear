@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-
+const AppError=require('../utils/AppError');
 
 
 
@@ -51,9 +51,6 @@ const login = async (req, res, next) => {
 
         const { email, password } = req.body;
 
-
-
-
         //Check if user exists by email or credentials are invalid
         const user = await User.findOne({ email });
         if (!user) {
@@ -83,7 +80,7 @@ const login = async (req, res, next) => {
                 accessToken: accessToken
 
             });
-        }
+    }
 
     
 

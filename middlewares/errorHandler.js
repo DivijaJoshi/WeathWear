@@ -1,5 +1,13 @@
 const errorHandler = (error, req, res, next) => {
 
+    //  Mongoose ValidationError
+    if (error.name === 'ValidationError') {
+        return res.status(400).json({
+            success: false,
+            message: error.message
+        });
+    }
+
     if (error.name === 'TokenExpiredError') {
         return res.status(401).json({
             error: 'Token expired. Please login again.'
