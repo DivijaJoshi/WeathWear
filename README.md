@@ -6,9 +6,9 @@ So I woke up one morning, getting ready to go to my office. My closet was full (
 Yet I always said I have nothing to wear.
 
 The weather was hot (12 pm in summer), half my clothes didn't even go together.
-Some felt comfy but didn't look good, some looked good but not suitable with the weather
+Some felt comfy but didn't look good, some looked good but not suitable with the weather.
 
-And I knew I wouldn't put more than 5 minutes into thinking what I am gonna wear today, or else I would be late to office
+And I knew I wouldn't put more than 5 minutes into thinking what I am gonna wear today, or else I would be late to office.
 
 And at the end, I ended up wearing the same outfit again.
 
@@ -62,8 +62,7 @@ This is when I thought, what if my wardrobe could decide it for me.
    Integrated Socket.io for sending generated response to user
 
 10. **Implemented Caching:**
-    Implemented caching (5 min TTL) using node-cache module to store user inputs 
-
+    Implemented caching (5 min TTL) using node-cache module to store user inputs temporarily
 ---
 ## Architecture
 ![Generate Outfit Execution Flow](image.png)
@@ -183,16 +182,15 @@ POST /refresh-token
 ### userRoutes
 
 ```
-POST /addClothes           - upload clothes to gemini, gemini analyses it and generates descriptive details about it and stores in db
-POST /analyseSkinTone      - Analyse skin tone
-GET  /getCloset            - get all clothes
-DELETE /deleteClothes/:id  - delete clothes
-POST /generateOutfits      - generate outfits
-PATCH /setFavourite/:id    - set an outfit as favourite
-GET  /getFavourites        - get favourites
-GET  /getGeneratedOutfits  - Get all generated outfits
-PATCH /removeFavourite/:id - remove an outfit from favourite
-GET  /getProfile           - get user profile
+POST /addClothes              - upload clothes to gemini, gemini analyses it and generates descriptive details about it and stores in db
+POST /analyseSkinTone         - Analyse skin tone
+GET  /getCloset               - get all clothes
+DELETE /deleteClothes/:id     - delete clothes
+POST /generateOutfits         - generate outfits
+PATCH /outfits/:id/favourite  - set/remove an outfit as favourite
+GET  /getFavourites           - get favourites
+GET  /getGeneratedOutfits     - Get all generated outfits
+GET  /getProfile              - get user profile
 ```
 
 ### weatherRoute
@@ -307,6 +305,8 @@ if data already processed by gemini, then delete cache data automatically, so fr
 ```javascript
 myCache.del(roomId);
 ```
+
+
 
 ### 4) Worker Manager
 

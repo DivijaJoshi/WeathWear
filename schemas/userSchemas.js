@@ -9,5 +9,10 @@ const generateOutfitSchema = {
     requiredFields: ['occasion', 'style', 'city', 'comfortScore', 'timeOfDay']
 };
 
+const setFavouriteSchema={
+    allowedFields: ['isFavourite'],
+    requiredFields: ['isFavourite']
+};
 
-module.exports = { addClothesSchema, generateOutfitSchema };
+
+module.exports = { addClothesSchema, generateOutfitSchema,setFavouriteSchema };

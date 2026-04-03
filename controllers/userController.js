@@ -30,7 +30,7 @@ const getProfile = async (req, res, next) => {
 
         return res.status(200).json({
             success: true,
-            message: "Profile fetched successfully",
+            message: 'Profile fetched successfully',
             data: userExists
         });
 
@@ -185,15 +185,15 @@ const getCloset = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
 
-        let documentCount = await Closet.countDocuments({ userId: req.user.id })
+        const documentCount = await Closet.countDocuments({ userId: req.user.id });
 
-        const closet = await Closet.find({ userId: req.user.id }).skip(skip).limit(limit)
+        const closet = await Closet.find({ userId: req.user.id }).skip(skip).limit(limit);
 
         const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
             success: true,
-            message: "Closet fetched successfully",
+            message: 'Closet fetched successfully',
             data: {
                 closet,
                 pagination: {
@@ -244,9 +244,11 @@ const deleteClothes = async (req, res, next) => {
 
         //only if linkedOutfits found then delete them from cloudinary
         if (linkedOutfits.length > 0) {
-            for (const outfit of linkedOutfits) {
-                await cloudinary.uploader.destroy(outfit.cloudinaryPublicId);
-            }
+            await Promise.all(
+                linkedOutfits.map(outfit =>
+                    cloudinary.uploader.destroy(outfit.cloudinaryPublicId)
+                )
+            );
 
         }
 
@@ -274,10 +276,10 @@ const generateOutfits = async (req, res, next) => {
         const { occasion, style, city, comfortScore, timeOfDay, mode } = req.body;
 
         //call weather api axios function
-        console.log(city)
+        console.log(city);
 
         const WeatherData = await GetWeather(city);
-        console.log(WeatherData)
+        console.log(WeatherData);
 
         //find user by id
         const user = await User.findOne({ _id: req.user.id });
@@ -345,17 +347,17 @@ const getFavourites = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        let documentCount = await Outfits.countDocuments({ userId: req.user.id, isFavourite: true })
+        const documentCount = await Outfits.countDocuments({ userId: req.user.id, isFavourite: true });
 
         //find if favourites exist
-        const favourites = await Outfits.find({ userId: req.user.id, isFavourite: true }).skip(skip).limit(limit)
+        const favourites = await Outfits.find({ userId: req.user.id, isFavourite: true }).skip(skip).limit(limit);
 
         //count no. of pages
         const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
             success: true,
-            message: "Favourite Outfits fetched successfully",
+            message: 'Favourite Outfits fetched successfully',
             data: {
                 outfits: favourites,
                 pagination: {
@@ -377,11 +379,17 @@ const getFavourites = async (req, res, next) => {
 const setFavourite = async (req, res, next) => {
     try {
         const id = req.params.id;
+        const {isFavourite}=req.body;
 
         //validate mongoose format for taskId
         const isValid = mongoose.Types.ObjectId.isValid(id);
         if (!isValid) {
             throw new AppError('Invalid Mongoose ObjectID', 400);
+        }
+
+        if(typeof isFavourite!=='boolean'){
+            throw new AppError('isFavourite must be a boolean', 400);
+
         }
 
         //check if outfit exists by id
@@ -392,15 +400,17 @@ const setFavourite = async (req, res, next) => {
             throw new AppError('No outfit found with this id', 404);
         }
 
-        //if outfit already marked as favourite cannot mark favourite again
-        if (outfitExists.isFavourite === true) {
-            throw new AppError('Already marked as favourite', 400);
+        //check if outfit already marked as favourite
+        if(outfitExists.isFavourite===isFavourite){
+            throw new AppError(isFavourite?'Already marked as favourite':
+                'Already not marked as favourite',400);
         }
-        const outfit = await Outfits.findByIdAndUpdate(id, { isFavourite: true }, { new: true });
+
+        const outfit = await Outfits.findByIdAndUpdate(id, { isFavourite }, { new: true });
 
         res.status(200).json({
             success: true,
-            message: 'Marked as favourite',
+            message: isFavourite?'Marked as favourite':'Removed from favourites',
             data: { outfit }
         });
 
@@ -415,45 +425,6 @@ const setFavourite = async (req, res, next) => {
 
 
 
-const removeFavourite = async (req, res, next) => {
-    try {
-        const id = req.params.id;
-
-        //validate mongoose format for taskId
-        const isValid = mongoose.Types.ObjectId.isValid(id);
-        if (!isValid) {
-            throw new AppError('Invalid Mongoose ObjectID', 400);
-        }
-
-        //check if outfit exists by id
-        const outfitExists = await Outfits.findOne({ _id: id, userId: req.user.id });
-
-        //if outfit not found throw error
-        if (!outfitExists) {
-            throw new AppError('No outfit found with this id', 404);
-        }
-
-        //if outfit not marked as favourite cannot remove from favourite
-        if (outfitExists.isFavourite === false) {
-            throw new AppError('Cannot remove from favourite, already not marked as favourite.', 400);
-        }
-
-        //remove outfit from favourite
-        const outfit = await Outfits.findByIdAndUpdate(id, { isFavourite: false }, { new: true });
-
-
-        res.status(200).json({
-            success: true,
-            message: 'Removed from favourites',
-            data: { outfit }
-        });
-
-
-    }
-    catch (error) {
-        next(error);
-    }
-};
 
 
 const getGeneratedOutfits = async (req, res, next) => {
@@ -463,10 +434,10 @@ const getGeneratedOutfits = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        let documentCount = await Outfits.countDocuments({ userId: req.user.id })
+        const documentCount = await Outfits.countDocuments({ userId: req.user.id });
 
         //get all generated outfits
-        const outfits = await Outfits.find({ userId: req.user.id }).skip(skip).limit(limit)
+        const outfits = await Outfits.find({ userId: req.user.id }).skip(skip).limit(limit);
 
 
         //count no. of pages
@@ -474,9 +445,9 @@ const getGeneratedOutfits = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: "Generated Outfits fetched successfully",
+            message: 'Generated Outfits fetched successfully',
             data: {
-                GeneratedOutfits: outfits,
+                generatedOutfits: outfits,
                 pagination: {
                     currentPage: page,
                     pageCount: totalCount,
@@ -492,7 +463,7 @@ const getGeneratedOutfits = async (req, res, next) => {
 };
 
 module.exports = {
-    myCache, getProfile, addClothes, analyseSkinTone, getCloset, deleteClothes, generateOutfits, getFavourites, setFavourite, getGeneratedOutfits, removeFavourite
+    myCache, getProfile, addClothes, analyseSkinTone, getCloset, deleteClothes, generateOutfits, getFavourites, setFavourite, getGeneratedOutfits
 };
 
 

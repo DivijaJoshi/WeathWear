@@ -53,6 +53,12 @@ const closet = new mongoose.Schema({
 }, { timestamps: true });
 
 
+closet.index({ userId: 1, clothingName: 1 }, {
+    unique: true
+});
+closet.index({ userId: 1, comfort: 1 });
+
+
 const Closet = mongoose.model('Closet', closet);
 
 module.exports = Closet; 

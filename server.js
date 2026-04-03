@@ -113,10 +113,12 @@ connectDb(process.env.MONGO_URL).then(async () => {
     //start workers
     await WorkerManager(channel);
 
+    
+    const PORT = process.env.PORT || 3000; 
 
     //start server
-    server.listen(process.env.PORT, () => {
-        console.log('Server Started at port', process.env.PORT);
+    server.listen(PORT, () => {
+        console.log('Server Started at port', process.env.PORT); 
     });
 }).catch(error => {
     console.log(error);

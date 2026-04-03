@@ -50,5 +50,11 @@ const outfits = new mongoose.Schema({
 }, { timestamps: true });
 
 
+
+
+outfits.index({ userId: 1 });
+outfits.index({ userId: 1, isFavourite: 1 });
+outfits.index({ clothingIds: 1 });
+
 const Outfits = mongoose.model('Outfits', outfits);
 module.exports = Outfits; 
