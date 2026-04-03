@@ -16,6 +16,7 @@ const AppError = require('../utils/AppError');
 const getProfile = async (req, res, next) => {
     try {
 
+
         //get user by Id
         const userExists = await User.findOne(
             { _id: req.user.id },
@@ -177,15 +178,30 @@ const analyseSkinTone = async (req, res, next) => {
 
 const getCloset = async (req, res, next) => {
     try {
-        const closet = await Closet.find({ userId: req.user.id });
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+
+        let documentCount = await Closet.countDocuments({ userId: req.user.id })
+
+        const closet = await Closet.find({ userId: req.user.id }).skip(skip).limit(limit)
 
         if (closet.length === 0) {
             throw new AppError('Closet empty, Add more clothes', 404);
         }
 
+        const totalCount = Math.ceil(documentCount / limit);
+
         res.status(200).json({
             status: 'success',
-            Closet: closet
+            Closet: closet,
+            Pagination: {
+                currentPage: page,
+                pageCount: totalCount,
+                totalDocuments: documentCount
+            }
         });
 
 
@@ -256,7 +272,10 @@ const generateOutfits = async (req, res, next) => {
         const { occasion, style, city, comfortScore, timeOfDay, mode } = req.body;
 
         //call weather api axios function
+        console.log(city)
+
         const WeatherData = await GetWeather(city);
+        console.log(WeatherData)
 
         //find user by id
         const user = await User.findOne({ _id: req.user.id });
@@ -319,17 +338,31 @@ const generateOutfits = async (req, res, next) => {
 const getFavourites = async (req, res, next) => {
     try {
 
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        let documentCount = await Outfits.countDocuments({ userId: req.user.id, isFavourite: true })
+
         //find if favourites exist
-        const favourites = await Outfits.find({ userId: req.user.id, isFavourite: true });
+        const favourites = await Outfits.find({ userId: req.user.id, isFavourite: true }).skip(skip).limit(limit)
 
         //if no favourites found throw error
         if (favourites.length === 0) {
             throw new AppError('No favourites found', 404);
         }
+        //count no. of pages
+        const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
             success: true,
-            outfits: favourites
+            outfits: favourites,
+            Pagination: {
+                currentPage: page,
+                pageCount: totalCount,
+                totalDocuments: documentCount
+            }
         });
 
     }
@@ -424,17 +457,32 @@ const removeFavourite = async (req, res, next) => {
 const getGeneratedOutfits = async (req, res, next) => {
     try {
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        let documentCount = await Outfits.countDocuments({ userId: req.user.id })
+
         //get all generated outfits
-        const outfits = await Outfits.find({ userId: req.user.id });
+        const outfits = await Outfits.find({ userId: req.user.id }).skip(skip).limit(limit)
+
 
         //if not generated outfit found throw error
         if (outfits.length === 0) {
             throw new AppError('No outfits generated yet', 404);
         }
 
+        //count no. of pages
+        const totalCount = Math.ceil(documentCount / limit);
+
         res.status(200).json({
             success: true,
-            GeneratedOutfits: outfits
+            GeneratedOutfits: outfits,
+            Pagination: {
+                currentPage: page,
+                pageCount: totalCount,
+                totalDocuments: documentCount
+            }
         });
     }
     catch (error) {
