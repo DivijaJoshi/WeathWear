@@ -33,7 +33,7 @@ const signup = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //create new user
-        const newUser=await User.create({ name, email, password: hashedPassword, gender });
+        await User.create({ name, email, password: hashedPassword, gender });
 
         res.status(201).json({ 
             success: true,
