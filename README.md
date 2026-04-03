@@ -8,7 +8,7 @@ Yet I always said I have nothing to wear.
 The weather was hot (12 pm in summer), half my clothes didn't even go together.
 Some felt comfy but didn't look good, some looked good but not suitable with the weather.
 
-And I knew I wouldn't put more than 5 minutes into thinking what I am gonna wear today, or else I would be late to office.
+And I knew I wouldn't put more than 5 minutes into thinking what I am gonna wear today, or else I would be late to office
 
 And at the end, I ended up wearing the same outfit again.
 
