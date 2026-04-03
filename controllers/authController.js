@@ -33,9 +33,12 @@ const signup = async (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         //create new user
-        await User.create({ name, email, password: hashedPassword, gender });
+        const newUser=await User.create({ name, email, password: hashedPassword, gender });
 
-        res.status(201).json({ success: true, message: 'Sign up successful' });
+        res.status(201).json({ 
+            success: true,
+            message: 'Sign up successful',
+        });
 
 
 
@@ -77,7 +80,7 @@ const login = async (req, res, next) => {
             .send({
                 success: true,
                 message: 'Login successful',
-                accessToken: accessToken
+                data:{accessToken}
 
             });
     }
@@ -117,7 +120,8 @@ const refreshToken = async (req, res, next) => {
             .header('Authorization', `Bearer ${accessToken}`)
             .send({
                 success: true,
-                accessToken: accessToken
+                message:'Token refreshed successfully',
+                data: {accessToken}
             });
     } catch (error) {
         next(error);

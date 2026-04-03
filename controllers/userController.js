@@ -29,8 +29,9 @@ const getProfile = async (req, res, next) => {
         }
 
         return res.status(200).json({
-            status: 'success',
-            profile: userExists
+            success: true,
+            message: "Profile fetched successfully",
+            data: userExists
         });
 
     } catch (error) {
@@ -101,7 +102,7 @@ const addClothes = async (req, res, next) => {
 
         res.status(201).json({
             success: true,
-            message: 'New clothing added to closet, clothing analysis in progress.'
+            message: 'New clothing added to closet, clothing analysis in progress.',
         });
 
 
@@ -188,20 +189,20 @@ const getCloset = async (req, res, next) => {
 
         const closet = await Closet.find({ userId: req.user.id }).skip(skip).limit(limit)
 
-        if (closet.length === 0) {
-            throw new AppError('Closet empty, Add more clothes', 404);
-        }
-
         const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
-            status: 'success',
-            Closet: closet,
-            Pagination: {
-                currentPage: page,
-                pageCount: totalCount,
-                totalDocuments: documentCount
-            }
+            success: true,
+            message: "Closet fetched successfully",
+            data: {
+                closet,
+                pagination: {
+                    currentPage: page,
+                    pageCount: totalCount,
+                    totalDocuments: documentCount
+                }
+            },
+
         });
 
 
@@ -254,7 +255,8 @@ const deleteClothes = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            message: 'Clothing deleted successfully'
+            message: 'Clothing deleted successfully',
+            data: deleted
         });
 
 
@@ -322,8 +324,8 @@ const generateOutfits = async (req, res, next) => {
 
         res.status(200).json({
             success: true,
-            roomId: roomId,
-            message: mode === 'test' ? 'TEST MODE: Outfit prompt generation in progress' : 'Outfit Generation in Progress'
+            message: mode === 'test' ? 'TEST MODE: Outfit prompt generation in progress' : 'Outfit Generation in Progress',
+            data: { roomId }
         });
 
 
@@ -348,21 +350,21 @@ const getFavourites = async (req, res, next) => {
         //find if favourites exist
         const favourites = await Outfits.find({ userId: req.user.id, isFavourite: true }).skip(skip).limit(limit)
 
-        //if no favourites found throw error
-        if (favourites.length === 0) {
-            throw new AppError('No favourites found', 404);
-        }
         //count no. of pages
         const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
             success: true,
-            outfits: favourites,
-            Pagination: {
-                currentPage: page,
-                pageCount: totalCount,
-                totalDocuments: documentCount
+            message: "Favourite Outfits fetched successfully",
+            data: {
+                outfits: favourites,
+                pagination: {
+                    currentPage: page,
+                    pageCount: totalCount,
+                    totalDocuments: documentCount
+                }
             }
+
         });
 
     }
@@ -399,7 +401,7 @@ const setFavourite = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'Marked as favourite',
-            outfit: outfit
+            data: { outfit }
         });
 
 
@@ -443,7 +445,7 @@ const removeFavourite = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: 'Removed from favourites',
-            outfit: outfit
+            data: { outfit }
         });
 
 
@@ -467,22 +469,21 @@ const getGeneratedOutfits = async (req, res, next) => {
         const outfits = await Outfits.find({ userId: req.user.id }).skip(skip).limit(limit)
 
 
-        //if not generated outfit found throw error
-        if (outfits.length === 0) {
-            throw new AppError('No outfits generated yet', 404);
-        }
-
         //count no. of pages
         const totalCount = Math.ceil(documentCount / limit);
 
         res.status(200).json({
             success: true,
-            GeneratedOutfits: outfits,
-            Pagination: {
-                currentPage: page,
-                pageCount: totalCount,
-                totalDocuments: documentCount
+            message: "Generated Outfits fetched successfully",
+            data: {
+                GeneratedOutfits: outfits,
+                pagination: {
+                    currentPage: page,
+                    pageCount: totalCount,
+                    totalDocuments: documentCount
+                }
             }
+
         });
     }
     catch (error) {
