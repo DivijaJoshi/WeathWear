@@ -103,7 +103,29 @@ describe('User Controller CRUD tests', () => {
             expect(clothing).not.toBeNull()
         })
 
+
+        test('test add clothes with missing fields', async () => {
+            const imagePath = path.join(__dirname, '../../testOutfitImages/1000327054.jpg')
+
+            const response = await request(app)
+                .post('/api/user/addClothes')
+                .set('Authorization', `Bearer ${accessToken}`)
+                .field('clothingName', 'test clothing')
+                .field('clothingType', 'Top')
+                .field('clothingMaterial', 'Cotton')
+                .attach('image', imagePath)
+
+
+            expect(response.status).toBe(400)
+            expect(response.body.success).toBe(false)
+            expect(response.body.message).toBe('Missing required fields: comfort')
+
+        })
+
+
     });
+
+
 
 
     //test get closet endpoint
